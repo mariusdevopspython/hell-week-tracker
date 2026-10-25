@@ -16,117 +16,170 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- PROGRESIU PE SĂPTĂMÂNI PENTRU ANTRENAMENTE & OBIECTIVE ---
+        // --- PROGRESIE PE SĂPTĂMÂNI PENTRU CALISTHENICS & OBIECTIVE ---
         const WEEKLY_PROGRESSIONS = {
-            1: { pullups: '4 serii × 7 reps (pauză 90s)', pushups: '3 serii × 20 reps (pauză 60s)', handstand: 'Kick-ups 4×5 (pauză 45s)', targetWeight: 79.5 },
-            2: { pullups: '4 serii × 8 reps (pauză 90s)', pushups: '3 serii × 23 reps (pauză 60s)', handstand: 'Kick-ups 4×6 (pauză 45s)', targetWeight: 79.0 },
-            3: { pullups: '4 serii × 10 reps (pauză 90s)', pushups: '3 serii × 26 reps (pauză 60s)', handstand: 'Menținere liberă 15s (pauză 60s)', targetWeight: 78.5 },
-            4: { pullups: '4 serii × 12 reps (pauză 90s)', pushups: '3 serii × 30 reps (pauză 60s)', handstand: 'Menținere liberă 30s (pauză 60s)', targetWeight: 78.0 }
+            1: { 
+                pullups: '4 serii × 7-8 reps (pauză 90s)', 
+                pushups: '3 serii × 20-22 reps (pauză 60s)', 
+                handstand: 'Kick-ups: 4 serii × 5-6 încercări (pauză 45s)',
+                pikeFlow: '3 serii × 8 reps Pike Flow (pauză 60s)',
+                core: 'Hollow Rocks: 3 serii × 30s + Ridicări picioare bară: 3×12',
+                targetWeight: 79.5 
+            },
+            2: { 
+                pullups: '4 serii × 8-9 reps (pauză 90s)', 
+                pushups: '3 serii × 22-25 reps (pauză 60s)', 
+                handstand: 'Kick-ups: 4 serii × 6-7 încercări (pauză 45s)',
+                pikeFlow: '3 serii × 10 reps Pike Flow (pauză 60s)',
+                core: 'Hollow Rocks: 3 serii × 35s + Ridicări picioare bară: 3×14',
+                targetWeight: 79.0 
+            },
+            3: { 
+                pullups: '4 serii × 10 reps (pauză 90s)', 
+                pushups: '3 serii × 25-27 reps (pauză 60s)', 
+                handstand: 'Menținere liberă: 4 serii × 15s (pauză 60s)',
+                pikeFlow: '3 serii × 12 reps Pike Flow (pauză 60s)',
+                core: 'Hollow Rocks: 3 serii × 40s + Ridicări picioare bară: 3×15',
+                targetWeight: 78.5 
+            },
+            4: { 
+                pullups: '4 serii × 12 reps (pauză 90s)', 
+                pushups: '3 serii × 30 reps (pauză 60s)', 
+                handstand: 'Menținere liberă: 4 serii × 30s (pauză 60s)',
+                pikeFlow: '3 serii × 15 reps Pike Flow (pauză 60s)',
+                core: 'Hollow Rocks: 3 serii × 45s + Ridicări picioare bară: 3×18',
+                targetWeight: 78.0 
+            }
         };
 
-        // --- ORARUL COMPLET 24/7 DETALIAT ---
+        // --- ORARUL COMPLET 24/7 DETALIAT MINUT CU MINUT & PE EXERCIȚII ---
         const INITIAL_SCHEDULE = {
           Luni: [
-            { id: 'l1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Handstand)', detailW: (w) => WEEKLY_PROGRESSIONS[w].handstand + ' | ' + WEEKLY_PROGRESSIONS[w].pullups, xp: 100, category: 'workout' },
-            { id: 'l2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Mâncare curată + Hugo Boss Infinite', xp: 50, category: 'routine' },
-            { id: 'l3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Deplasare spre Ciocana/CEITI', xp: 30, category: 'routine' },
-            { id: 'l4', time: '08:00 - 10:50', task: 'Ore CEITI: Grupa R-2611 (Perechea 1 & 2)', detailW: () => 'Cursuri profil rețele / mate / română', xp: 50, category: 'study' },
-            { id: 'l5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups + ' + ' + WEEKLY_PROGRESSIONS[w].pushups, xp: 80, category: 'workout' },
-            { id: 'l6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', detailW: () => 'Studiu tehnic & laboratoare', xp: 50, category: 'study' },
-            { id: 'l7', time: '14:20 - 15:25', task: 'Întoarcere Ciocana & Odihnă Deconectare', detailW: () => 'Deplasare autobuz & relaxare pe pat', xp: 30, category: 'routine' },
-            { id: 'l8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Masă bogată în proteine și carbohidrați', xp: 40, category: 'routine' },
-            { id: 'l9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Școala Nr. 2)', detailW: () => 'Încălzire 20m | Intrări la picioare 40m | Shadowboxing 25m', xp: 120, category: 'workout' },
-            { id: 'l10', time: '18:00 - 18:30', task: 'Tranzit înapoi & Duș rapid', detailW: () => 'Igienă personală', xp: 30, category: 'routine' },
-            { id: 'l11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel Matinal', detailW: () => 'Hanorac negru + bandană, clip calisthenics', xp: 60, category: 'code' },
-            { id: 'l12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) sau Kwork Coding (2 ore Focus)', detailW: () => 'Scriere cod în VS Code / Docker', xp: 100, category: 'code' },
-            { id: 'l13', time: '21:00 - 22:00', task: 'Cina & Pregătire pentru somn', detailW: () => 'Masă lejeră de seară', xp: 40, category: 'routine' },
-            { id: 'l14', time: '22:00 - 05:00', task: 'Somn Profund de Recuperare (7h strictly)', detailW: () => 'Recuperare celulară totală', xp: 80, category: 'routine' }
+            { id: 'l1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Handstand)', detailW: (w) => `⏱️ Cronometru 60 min:
+• 05:00 - 05:08 (8m): Încălzire articulară (încheieturi, umeri, șolduri)
+• 05:08 - 05:25 (17m): Handstand & Echilibru (${WEEKLY_PROGRESSIONS[w].handstand} + ${WEEKLY_PROGRESSIONS[w].pikeFlow})
+• 05:25 - 05:42 (17m): Fortă (${WEEKLY_PROGRESSIONS[w].pullups} + ${WEEKLY_PROGRESSIONS[w].pushups})
+• 05:42 - 05:55 (13m): Core Dinamic (${WEEKLY_PROGRESSIONS[w].core})
+• 05:55 - 06:00 (5m): Revenire & decontractare`, xp: 100, category: 'workout' },
+            { id: 'l2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Alimentație curată (proteine + carbohidrați complecși), igienă, parfum Hugo Boss Bottled Infinite.', xp: 50, category: 'routine' },
+            { id: 'l3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Deplasare din Ciocana spre CEITI, sosire în clasă la 07:40.', xp: 30, category: 'routine' },
+            { id: 'l4', time: '08:00 - 10:50', task: 'Ore CEITI: Grupa R-2611 (Perechea 1 & 2)', detailW: () => 'Ore de curs conform orarului (Rețele de calculatoare / Română / Matematică).', xp: 50, category: 'study' },
+            { id: 'l5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (40 min)', detailW: (w) => `⏱️ Cronometru 40 min:
+• 10:50 - 11:10 (20m): Gustare & hidratare
+• 11:10 - 11:25 (15m): Set rapid stadion (${WEEKLY_PROGRESSIONS[w].pullups} + ${WEEKLY_PROGRESSIONS[w].pushups})
+• 11:25 - 11:30 (5m): Întoarcere în clasă`, xp: 80, category: 'workout' },
+            { id: 'l6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', detailW: () => 'Ore de curs / laboratoare / ferestre de studiu individual.', xp: 50, category: 'study' },
+            { id: 'l7', time: '14:20 - 15:25', task: 'Întoarcere Ciocana & Odihnă Deconectare', detailW: () => 'Deplasare autobuz spre casă, 20 minute deconectare pe pat.', xp: 30, category: 'routine' },
+            { id: 'l8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Prânz consistent (carne slabă, orez/cartofi, legume) + hidratare.', xp: 40, category: 'routine' },
+            { id: 'l9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', detailW: () => `⏱️ Cronometru 90 min (16:30 - 18:00):
+• 16:30 - 16:50 (20m): Încălzire specifică de luptă, pod pe cap, acrobatică
+• 16:50 - 17:30 (40m): Tehnică lupte libere, intrări la un picior/două, proiectări, clinch
+• 17:30 - 17:55 (25m): Shadowboxing & footwork (runde 3m/1m pauză, deplasare în cerc, unghiuri, croșee)
+• 17:55 - 18:00 (5m): Stretching & revenire`, xp: 120, category: 'workout' },
+            { id: 'l10', time: '18:00 - 18:30', task: 'Tranzit înapoi & Duș rapid', detailW: () => 'Drum spre casă, duș cald/rece, schimbat haine.', xp: 30, category: 'routine' },
+            { id: 'l11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Editat clip filmat la 05:00 (hanorac negru + bandană), adăugat piesă, publicare.', xp: 60, category: 'code' },
+            { id: 'l12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) sau Kwork Coding (2 ore)', detailW: () => 'Scris cod în VS Code / Docker. Comenzi clienți Kwork sau scriptat tutoriale Python.', xp: 100, category: 'code' },
+            { id: 'l13', time: '21:00 - 22:00', task: 'Cina & Pregătire pentru somn', detailW: () => 'Cină ușoară proteică, pregătire ghiozdan și haine pentru a doua zi.', xp: 40, category: 'routine' },
+            { id: 'l14', time: '22:00 - 05:00', task: 'Somn Profund de Recuperare (7h strictly)', detailW: () => 'Stingerea totală a luminii, refacere musculară și nervoasă.', xp: 80, category: 'routine' }
           ],
           Marti: [
-            { id: 'ma1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Echilibru)', detailW: (w) => WEEKLY_PROGRESSIONS[w].handstand, xp: 100, category: 'workout' },
-            { id: 'ma2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Rutina matinală', xp: 50, category: 'routine' },
-            { id: 'ma3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Drumul spre colegiu', xp: 30, category: 'routine' },
-            { id: 'ma4', time: '08:00 - 10:50', task: 'Ore CEITI: Perechea 1 & 2', detailW: () => 'Fără prima pereche / studiu', xp: 50, category: 'study' },
-            { id: 'ma5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
-            { id: 'ma6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', detailW: () => 'Cursuri tehnice', xp: 50, category: 'study' },
-            { id: 'ma7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', detailW: () => 'Revenire Ciocana', xp: 30, category: 'routine' },
-            { id: 'ma8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Masă proteică', xp: 40, category: 'routine' },
-            { id: 'ma9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', detailW: () => 'Lupte la sol și picioare', xp: 120, category: 'workout' },
-            { id: 'ma10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', detailW: () => 'Duș și haine', xp: 30, category: 'routine' },
-            { id: 'ma11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Reel nou publicat', xp: 60, category: 'code' },
-            { id: 'ma12', time: '19:00 - 21:00', task: 'Python Coding / Kwork Client Delivery (2 ore)', detailW: () => 'Dezvoltare scripturi Python', xp: 100, category: 'code' },
-            { id: 'ma13', time: '21:00 - 22:00', task: 'Cină & Deconectare', xp: 40, category: 'routine' },
-            { id: 'ma14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', xp: 80, category: 'routine' }
+            { id: 'ma1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Echilibru)', detailW: (w) => `⏱️ Cronometru 60 min:
+• 05:00 - 05:08 (8m): Încălzire încheieturi/umeri
+• 05:08 - 05:25 (17m): Control Handstand (${WEEKLY_PROGRESSIONS[w].handstand})
+• 05:25 - 05:42 (17m): Volum Tracțiuni & Flotări (${WEEKLY_PROGRESSIONS[w].pullups} + ${WEEKLY_PROGRESSIONS[w].pushups})
+• 05:42 - 05:55 (13m): Core (${WEEKLY_PROGRESSIONS[w].core})
+• 05:55 - 06:00 (5m): Cooldown`, xp: 100, category: 'workout' },
+            { id: 'ma2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Rutina de dimineață.', xp: 50, category: 'routine' },
+            { id: 'ma3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Mers spre colegiu.', xp: 30, category: 'routine' },
+            { id: 'ma4', time: '08:00 - 10:50', task: 'Ore CEITI: Perechea 1 & 2', detailW: () => 'Cursuri de dimineață (fără prima pereche marțea / studiu).', xp: 50, category: 'study' },
+            { id: 'ma5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => `15 min antrenament light: ${WEEKLY_PROGRESSIONS[w].pullups} + ${WEEKLY_PROGRESSIONS[w].pushups}`, xp: 80, category: 'workout' },
+            { id: 'ma6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', detailW: () => 'Cursuri profil.', xp: 50, category: 'study' },
+            { id: 'ma7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', detailW: () => 'Revenire acasă, pauză.', xp: 30, category: 'routine' },
+            { id: 'ma8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Masă proteică.', xp: 40, category: 'routine' },
+            { id: 'ma9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', detailW: () => `⏱️ 90 min sală: Încălzire 20m | Tehnică picioare 40m | Shadowboxing/footwork 25m | Stretching 5m`, xp: 120, category: 'workout' },
+            { id: 'ma10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', detailW: () => 'Duș și Schimbat.', xp: 30, category: 'routine' },
+            { id: 'ma11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Postare conținut.', xp: 60, category: 'code' },
+            { id: 'ma12', time: '19:00 - 21:00', task: 'Python Coding / Kwork Client Delivery (2 ore)', detailW: () => 'Proiecte Kwork & cod Python.', xp: 100, category: 'code' },
+            { id: 'ma13', time: '21:00 - 22:00', task: 'Cină & Deconectare', detailW: () => 'Refacere.', xp: 40, category: 'routine' },
+            { id: 'ma14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', detailW: () => 'Somn.', xp: 80, category: 'routine' }
           ],
           Miercuri: [
-            { id: 'mi1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Pike Flow & Core Dinamic)', detailW: (w) => WEEKLY_PROGRESSIONS[w].pushups, xp: 100, category: 'workout' },
-            { id: 'mi2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Micul dejun curat', xp: 50, category: 'routine' },
-            { id: 'mi3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Deplasare', xp: 30, category: 'routine' },
-            { id: 'mi4', time: '08:00 - 10:50', task: 'Ore CEITI: Limba Română / Rețele', detailW: () => 'Cursuri program', xp: 50, category: 'study' },
-            { id: 'mi5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
-            { id: 'mi6', time: '11:30 - 14:20', task: 'Ore CEITI: Programare & Matematică', detailW: () => 'Laboratoare', xp: 50, category: 'study' },
-            { id: 'mi7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
-            { id: 'mi8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
-            { id: 'mi9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork', detailW: () => 'Antrenament de seară', xp: 120, category: 'workout' },
-            { id: 'mi10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', xp: 30, category: 'routine' },
-            { id: 'mi11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', xp: 60, category: 'code' },
-            { id: 'mi12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) / Kwork Development', xp: 100, category: 'code' },
-            { id: 'mi13', time: '21:00 - 22:00', task: 'Cină & Deconectare', xp: 40, category: 'routine' },
-            { id: 'mi14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', xp: 80, category: 'routine' }
+            { id: 'mi1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Pike Flow & Core Dinamic)', detailW: (w) => `⏱️ 60 min: Handstand (${WEEKLY_PROGRESSIONS[w].handstand}) + Tracțiuni/Flotări (${WEEKLY_PROGRESSIONS[w].pullups}, ${WEEKLY_PROGRESSIONS[w].pushups}) + Core`, xp: 100, category: 'workout' },
+            { id: 'mi2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Masă curată.', xp: 50, category: 'routine' },
+            { id: 'mi3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Drum CEITI.', xp: 30, category: 'routine' },
+            { id: 'mi4', time: '08:00 - 10:50', task: 'Ore CEITI: Limba Română / Rețele', detailW: () => 'Lectii teoretice.', xp: 50, category: 'study' },
+            { id: 'mi5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi', detailW: (w) => `Set stadion: ${WEEKLY_PROGRESSIONS[w].pullups}`, xp: 80, category: 'workout' },
+            { id: 'mi6', time: '11:30 - 14:20', task: 'Ore CEITI: Programare & Matematică', detailW: () => 'Laboratoare.', xp: 50, category: 'study' },
+            { id: 'mi7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', detailW: () => 'Drum inapoi.', xp: 30, category: 'routine' },
+            { id: 'mi8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Masă sanatoasa.', xp: 40, category: 'routine' },
+            { id: 'mi9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork', detailW: () => `Antrenament complet de lupte & shadowboxing`, xp: 120, category: 'workout' },
+            { id: 'mi10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', detailW: () => 'Dus.', xp: 30, category: 'routine' },
+            { id: 'mi11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Postare.', xp: 60, category: 'code' },
+            { id: 'mi12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) / Kwork Development', detailW: () => '2 ore cod.', xp: 100, category: 'code' },
+            { id: 'mi13', time: '21:00 - 22:00', task: 'Cină & Deconectare', detailW: () => 'Cina.', xp: 40, category: 'routine' },
+            { id: 'mi14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', detailW: () => 'Somn.', xp: 80, category: 'routine' }
           ],
           Joi: [
-            { id: 'j1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Handstand Kick-ups & Tracțiuni)', detailW: (w) => WEEKLY_PROGRESSIONS[w].handstand, xp: 100, category: 'workout' },
-            { id: 'j2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
-            { id: 'j3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
-            { id: 'j4', time: '08:00 - 10:50', task: 'Ore CEITI: Română & Programare Structurată', xp: 50, category: 'study' },
-            { id: 'j5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
-            { id: 'j6', time: '11:30 - 14:20', task: 'Ore CEITI: Matematică & Istorie', xp: 50, category: 'study' },
-            { id: 'j7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
-            { id: 'j8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
-            { id: 'j9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', xp: 120, category: 'workout' },
-            { id: 'j10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', xp: 30, category: 'routine' },
-            { id: 'j11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', xp: 60, category: 'code' },
-            { id: 'j12', time: '19:00 - 21:00', task: 'Kwork Scripting & Python Automation (2 ore)', xp: 100, category: 'code' },
-            { id: 'j13', time: '21:00 - 22:00', task: 'Cină & Deconectare', xp: 40, category: 'routine' },
-            { id: 'j14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', xp: 80, category: 'routine' }
+            { id: 'j1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Handstand Kick-ups & Tracțiuni)', detailW: (w) => `⏱️ 60 min: Kick-ups (${WEEKLY_PROGRESSIONS[w].handstand}) + Tracțiuni (${WEEKLY_PROGRESSIONS[w].pullups}) + Flotări (${WEEKLY_PROGRESSIONS[w].pushups})`, xp: 100, category: 'workout' },
+            { id: 'j2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Rutina matinală.', xp: 50, category: 'routine' },
+            { id: 'j3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Drum CEITI.', xp: 30, category: 'routine' },
+            { id: 'j4', time: '08:00 - 10:50', task: 'Ore CEITI: Română & Programare Structurată', detailW: () => 'Cursuri.', xp: 50, category: 'study' },
+            { id: 'j5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => `Sesiune pauză: ${WEEKLY_PROGRESSIONS[w].pullups}`, xp: 80, category: 'workout' },
+            { id: 'j6', time: '11:30 - 14:20', task: 'Ore CEITI: Matematică & Istorie', detailW: () => 'Cursuri.', xp: 50, category: 'study' },
+            { id: 'j7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', detailW: () => 'Drum acasă.', xp: 30, category: 'routine' },
+            { id: 'j8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Mâncare.', xp: 40, category: 'routine' },
+            { id: 'j9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', detailW: () => `Antrenament lupte & viteza de reacție`, xp: 120, category: 'workout' },
+            { id: 'j10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', detailW: () => 'Igienă.', xp: 30, category: 'routine' },
+            { id: 'j11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Reel.', xp: 60, category: 'code' },
+            { id: 'j12', time: '19:00 - 21:00', task: 'Kwork Scripting & Python Automation (2 ore)', detailW: () => 'Automatizări Python.', xp: 100, category: 'code' },
+            { id: 'j13', time: '21:00 - 22:00', task: 'Cină & Deconectare', detailW: () => 'Cină.', xp: 40, category: 'routine' },
+            { id: 'j14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', detailW: () => 'Somn.', xp: 80, category: 'routine' }
           ],
           Vineri: [
-            { id: 'v1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics dinamic final de săptămână)', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups + ' | ' + WEEKLY_PROGRESSIONS[w].pushups, xp: 100, category: 'workout' },
-            { id: 'v2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
-            { id: 'v3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
-            { id: 'v4', time: '08:00 - 10:50', task: 'Ore CEITI: Istoria & Matematica', xp: 50, category: 'study' },
-            { id: 'v5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (Ultimul set)', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
-            { id: 'v6', time: '11:30 - 14:20', task: 'CEITI: Fereastră & Studiu Individual', xp: 50, category: 'study' },
-            { id: 'v7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
-            { id: 'v8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
-            { id: 'v9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork Final', xp: 120, category: 'workout' },
-            { id: 'v10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', xp: 30, category: 'routine' },
-            { id: 'v11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', xp: 60, category: 'code' },
-            { id: 'v12', time: '19:00 - 21:00', task: 'YouTube & Kwork Coding Deep Work', xp: 100, category: 'code' },
-            { id: 'v13', time: '21:00 - 22:00', task: 'Cină & Pregătire Weekend', xp: 40, category: 'routine' },
-            { id: 'v14', time: '22:00 - 05:00', task: 'Somn Profund de Refacere', xp: 80, category: 'routine' }
+            { id: 'v1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics dinamic final de săptămână)', detailW: (w) => `⏱️ 60 min: Ultimul set de calisthenics din săptămână: ${WEEKLY_PROGRESSIONS[w].pullups} + ${WEEKLY_PROGRESSIONS[w].pushups} + ${WEEKLY_PROGRESSIONS[w].handstand}`, xp: 100, category: 'workout' },
+            { id: 'v2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Mic dejun.', xp: 50, category: 'routine' },
+            { id: 'v3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Drum.', xp: 30, category: 'routine' },
+            { id: 'v4', time: '08:00 - 10:50', task: 'Ore CEITI: Istoria & Matematica', detailW: () => 'Cursuri.', xp: 50, category: 'study' },
+            { id: 'v5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (Ultimul set)', detailW: (w) => `Stadion: ${WEEKLY_PROGRESSIONS[w].pullups}`, xp: 80, category: 'workout' },
+            { id: 'v6', time: '11:30 - 14:20', task: 'CEITI: Fereastră & Studiu Individual', detailW: () => 'Studiu individual / ferestre.', xp: 50, category: 'study' },
+            { id: 'v7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', detailW: () => 'Acasă.', xp: 30, category: 'routine' },
+            { id: 'v8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Mâncare.', xp: 40, category: 'routine' },
+            { id: 'v9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork Final', detailW: () => `Lupte libere & shadowboxing intensiv de final de săptămână`, xp: 120, category: 'workout' },
+            { id: 'v10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', detailW: () => 'Duș.', xp: 30, category: 'routine' },
+            { id: 'v11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Postare.', xp: 60, category: 'code' },
+            { id: 'v12', time: '19:00 - 21:00', task: 'YouTube & Kwork Coding Deep Work', detailW: () => '2 ore programare.', xp: 100, category: 'code' },
+            { id: 'v13', time: '21:00 - 22:00', task: 'Cină & Pregătire Weekend', detailW: () => 'Cină.', xp: 40, category: 'routine' },
+            { id: 'v14', time: '22:00 - 05:00', task: 'Somn Profund de Refacere', detailW: () => 'Somn.', xp: 80, category: 'routine' }
           ],
           Sambata: [
-            { id: 's1', time: '08:00 - 09:00', task: 'Trezire Naturală & Micul Dejun consistent', detailW: () => 'Refacere matinală în tihnă', xp: 40, category: 'routine' },
-            { id: 's2', time: '09:00 - 10:00', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (40 min)', detailW: () => 'Runde tehnice de viteză și mobilitate', xp: 100, category: 'workout' },
-            { id: 's3', time: '10:00 - 12:00', task: 'Studiu CEITI / Proiecte Rețele & C++', detailW: () => 'Aprofundare C++ / Linux', xp: 80, category: 'study' },
-            { id: 's4', time: '12:00 - 13:00', task: 'Gătit Mese Curate pentru Weekend (Prep)', detailW: () => 'Meal prep curat', xp: 60, category: 'routine' },
-            { id: 's5', time: '13:00 - 14:00', task: 'Prânz & Pauză de Relaxare', detailW: () => 'Masă principală', xp: 40, category: 'routine' },
-            { id: 's6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: Kwork Projects & YouTube Scripting/Edits', detailW: () => 'Deep work programare & freelancing', xp: 200, category: 'code' },
-            { id: 's7', time: '18:00 - 19:30', task: 'Timp Liber & Socializare (Deconectare totală)', detailW: () => 'Ieșire cu prietenii / familie', xp: 50, category: 'routine' },
-            { id: 's8', time: '19:30 - 21:00', task: 'Cină & Planificare Săptămânală', detailW: () => 'Pregătire mentală', xp: 40, category: 'routine' },
-            { id: 's9', time: '21:00 - 07:00', task: 'Odihnă & Somn Profund de Recuperare', detailW: () => 'Somn lung de weekend', xp: 80, category: 'routine' }
+            { id: 's1', time: '08:00 - 09:00', task: 'Trezire Naturală & Micul Dejun consistent', detailW: () => 'Trezire fără presiune, hidratare.', xp: 40, category: 'routine' },
+            { id: 's2', time: '09:00 - 10:00', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (40 min)', detailW: () => `⏱️ Cronometru 40 min:
+• 09:00 - 09:10 (10m): Încălzire & mobilitate articulară umeri/șolduri
+• 09:10 - 09:35 (25m): Shadowboxing & Footwork (runde de 3m/1m pauză, eschive, upercuturi, viteza de reacție)
+• 09:35 - 09:50 (15m): Stretching profund & mobilitate
+• 09:50 - 10:00 (10m): Duș revigorant`, xp: 100, category: 'workout' },
+            { id: 's3', time: '10:00 - 12:00', task: 'Studiu CEITI / Proiecte Rețele & C++', detailW: () => 'Proiecte rețele, C++, Linux.', xp: 80, category: 'study' },
+            { id: 's4', time: '12:00 - 13:00', task: 'Gătit Mese Curate pentru Weekend (Prep)', detailW: () => 'Gătit proteine, orez, legume.', xp: 60, category: 'routine' },
+            { id: 's5', time: '13:00 - 14:00', task: 'Prânz & Pauză de Relaxare', detailW: () => 'Masa de prânz.', xp: 40, category: 'routine' },
+            { id: 's6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: Kwork Projects & YouTube Scripting/Edits', detailW: () => '4 ore solide de freelancing Kwork / pregătire tutoriale Python.', xp: 200, category: 'code' },
+            { id: 's7', time: '18:00 - 19:30', task: 'Timp Liber & Socializare (Deconectare totală)', detailW: () => 'Timp cu prietenii sau muzică.', xp: 50, category: 'routine' },
+            { id: 's8', time: '19:30 - 21:00', task: 'Cină & Planificare Săptămânală', detailW: () => 'Cină ușoară.', xp: 40, category: 'routine' },
+            { id: 's9', time: '21:00 - 07:00', task: 'Odihnă & Somn Profund de Recuperare', detailW: () => 'Somn de refacere.', xp: 80, category: 'routine' }
           ],
           Duminica: [
-            { id: 'd1', time: '08:30 - 09:30', task: 'Trezire Naturală & Hidratare / Micul Dejun', detailW: () => 'Hidratare și mic dejun', xp: 40, category: 'routine' },
-            { id: 'd2', time: '09:30 - 10:15', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (45 min)', detailW: () => 'Menținere tonus sportiv', xp: 100, category: 'workout' },
-            { id: 'd3', time: '10:30 - 12:00', task: 'Organizari, Pregătire Ghiozdan & Uniformă pentru Luni', detailW: () => 'Pregătirea săptămânii', xp: 50, category: 'routine' },
-            { id: 'd4', time: '12:00 - 13:00', task: 'Gătit Mese Curate (Meal Prep săptămâna viitoare)', detailW: () => 'Gătit pentru Luni-Vineri', xp: 60, category: 'routine' },
-            { id: 'd5', time: '13:00 - 14:00', task: 'Prânz & Scurtă Plimbare', detailW: () => 'Aer curat', xp: 40, category: 'routine' },
-            { id: 'd6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: YouTube (5-Min Python) & Kwork Finalizing', detailW: () => 'Finalizare task-uri s, scripturi', xp: 200, category: 'code' },
-            { id: 'd7', time: '18:00 - 19:30', task: 'Deconectare & Socializare cu Familia/Prietenii', detailW: () => 'Relaxare', xp: 50, category: 'routine' },
-            { id: 'd8', time: '19:30 - 21:00', task: 'Cină Lejeră & Vizualizarea Săptămânii Viitoare', detailW: () => 'Setare mentală pentru Luni 05:00', xp: 40, category: 'routine' },
-            { id: 'd9', time: '21:00 - 05:00', task: 'Somn Profund (Stingere totală pentru Luni 05:00)', detailW: () => 'Pregătire pentru Hell Week', xp: 80, category: 'routine' }
+            { id: 'd1', time: '08:30 - 09:30', task: 'Trezire Naturală & Hidratare / Micul Dejun', detailW: () => 'Hidratare, mic dejun.', xp: 40, category: 'routine' },
+            { id: 'd2', time: '09:30 - 10:15', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (45 min)', detailW: () => `⏱️ Cronometru 45 min:
+• 09:30 - 09:38 (8m): Încălzire articulară
+• 09:38 - 10:00 (22m): Shadowboxing & footwork (combinații rapide, joc de glezne)
+• 10:00 - 10:15 (15m): Stretching & mobilitate
+• 10:15 - 10:30 (15m): Duș scurt`, xp: 100, category: 'workout' },
+            { id: 'd3', time: '10:30 - 12:00', task: 'Organizari, Pregătire Ghiozdan & Uniformă pentru Luni', detailW: () => 'Pregătirea ghiozdanului, haine, curățenie.', xp: 50, category: 'routine' },
+            { id: 'd4', time: '12:00 - 13:00', task: 'Gătit Mese Curate (Meal Prep săptămâna viitoare)', detailW: () => 'Meal prep Luni-Vineri.', xp: 60, category: 'routine' },
+            { id: 'd5', time: '13:00 - 14:00', task: 'Prânz & Scurtă Plimbare', detailW: () => 'Prânz și aer curat.', xp: 40, category: 'routine' },
+            { id: 'd6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: YouTube (5-Min Python) & Kwork Finalizing', detailW: () => 'Finalizare comenzi Kwork & programat clipuri YouTube.', xp: 200, category: 'code' },
+            { id: 'd7', time: '18:00 - 19:30', task: 'Deconectare & Socializare cu Familia/Prietenii', detailW: () => 'Timp de relaxare.', xp: 50, category: 'routine' },
+            { id: 'd8', time: '19:30 - 21:00', task: 'Cină Lejeră & Vizualizarea Săptămânii Viitoare', detailW: () => 'Setare mentală pentru Luni 05:00.', xp: 40, category: 'routine' },
+            { id: 'd9', time: '21:00 - 05:00', task: 'Somn Profund (Stingere totală pentru Luni 05:00)', detailW: () => 'Somn odihnitor.', xp: 80, category: 'routine' }
           ]
         };
 
@@ -325,7 +378,7 @@
                     <button onClick={resetCurrentDay} className="text-xs text-neutral-500 hover:text-rose-400 bg-neutral-950 px-3 py-1.5 rounded-xl border border-neutral-800 transition">Resetează ziua</button>
                   </div>
 
-                  {/* TASKS LIST */}
+                  {/* TASKS LIST WITH FULL DETAILS */}
                   <div className="space-y-2.5">
                     {currentDaySchedule.map(item => {
                       const isChecked = !!completedTasks[`w${selectedWeek}-${selectedDay}-${item.id}`];
@@ -333,14 +386,18 @@
 
                       return (
                         <div key={item.id} onClick={() => toggleTask(item.id)} className={`p-4 rounded-2xl border transition cursor-pointer flex items-start justify-between gap-4 ${isChecked ? 'bg-emerald-950/20 border-emerald-500/40 text-neutral-400' : 'bg-neutral-900 border-neutral-800 text-neutral-100 hover:border-neutral-700'}`}>
-                          <div className="flex items-start space-x-3">
+                          <div className="flex items-start space-x-3 w-full">
                             <div className={`mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center flex-shrink-0 transition ${isChecked ? 'bg-emerald-500 border-emerald-400 text-neutral-950 font-bold' : 'border-neutral-700 bg-neutral-950'}`}>
                               {isChecked ? '✓' : ''}
                             </div>
-                            <div>
+                            <div className="w-full">
                               <span className="text-[10px] font-mono text-emerald-400 font-bold">{item.time}</span>
                               <div className={`text-sm font-semibold mt-0.5 ${isChecked ? 'line-through text-neutral-500' : 'text-white'}`}>{item.task}</div>
-                              {detailText && <div className="text-xs text-neutral-400 mt-1 font-mono bg-neutral-950/60 p-2 rounded-xl border border-neutral-800/80">⚙️ {detailText}</div>}
+                              {detailText && (
+                                <div className="text-xs text-neutral-300 mt-2 font-mono bg-neutral-950/80 p-3 rounded-xl border border-neutral-800 leading-relaxed whitespace-pre-line">
+                                  {detailText}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <span className={`text-xs px-2.5 py-1 rounded-xl font-bold flex-shrink-0 ${isChecked ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-neutral-950 text-amber-400 border border-neutral-800'}`}>
