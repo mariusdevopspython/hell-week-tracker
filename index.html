@@ -3,77 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luna Iadului — Protocol 24/7</title>
+    <title>Luna Iadului — Protocol 24/7 & RPG Engine</title>
     
-    <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    
-    <!-- Babel Standalone for JSX parsing -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
 </head>
-<body class="bg-neutral-950 text-neutral-100 font-sans antialiased">
+<body class="bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-emerald-500 selection:text-black min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
-        const { 
-            Trophy, Flame, CheckCircle2, Circle, Dumbbell, Code, Sparkles, 
-            TrendingUp, Calendar, Award, RotateCcw, Volume2, VolumeX, BarChart3, 
-            Zap, Clock, Target, Check, Shield, AlertCircle
-        } = LucideReact;
 
-        // --- INITIAL SCHEDULE DATA (LUNA IADULUI PROTOCOL) ---
+        // --- PROGRESIU PE SĂPTĂMÂNI PENTRU ANTRENAMENTE & OBIECTIVE ---
+        const WEEKLY_PROGRESSIONS = {
+            1: { pullups: '4 serii × 7 reps (pauză 90s)', pushups: '3 serii × 20 reps (pauză 60s)', handstand: 'Kick-ups 4×5 (pauză 45s)', targetWeight: 79.5 },
+            2: { pullups: '4 serii × 8 reps (pauză 90s)', pushups: '3 serii × 23 reps (pauză 60s)', handstand: 'Kick-ups 4×6 (pauză 45s)', targetWeight: 79.0 },
+            3: { pullups: '4 serii × 10 reps (pauză 90s)', pushups: '3 serii × 26 reps (pauză 60s)', handstand: 'Menținere liberă 15s (pauză 60s)', targetWeight: 78.5 },
+            4: { pullups: '4 serii × 12 reps (pauză 90s)', pushups: '3 serii × 30 reps (pauză 60s)', handstand: 'Menținere liberă 30s (pauză 60s)', targetWeight: 78.0 }
+        };
+
+        // --- ORARUL COMPLET 24/7 DETALIAT ---
         const INITIAL_SCHEDULE = {
           Luni: [
-            { id: 'l1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Handstand)', xp: 100, category: 'workout' },
-            { id: 'l2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
-            { id: 'l3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
-            { id: 'l4', time: '08:00 - 10:50', task: 'Ore CEITI: Perechea 1 & 2', xp: 50, category: 'study' },
-            { id: 'l5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (3x8 Tracțiuni, 3x15 Flotări)', xp: 80, category: 'workout' },
-            { id: 'l6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', xp: 50, category: 'study' },
-            { id: 'l7', time: '14:20 - 15:25', task: 'Întoarcere Ciocana & Odihnă Deconectare', xp: 30, category: 'routine' },
-            { id: 'l8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
-            { id: 'l9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Școala de Lupte Nr. 2)', xp: 120, category: 'workout' },
-            { id: 'l10', time: '18:00 - 18:30', task: 'Tranzit înapoi & Duș rapid', xp: 30, category: 'routine' },
-            { id: 'l11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel Matinal', xp: 60, category: 'code' },
-            { id: 'l12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) sau Kwork Coding (2 ore Focus)', xp: 100, category: 'code' },
-            { id: 'l13', time: '21:00 - 22:00', task: 'Cina & Pregătire pentru somn', xp: 40, category: 'routine' },
-            { id: 'l14', time: '22:00 - 05:00', task: 'Somn Profund de Recuperare (7h strictly)', xp: 80, category: 'routine' }
+            { id: 'l1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Handstand)', detailW: (w) => WEEKLY_PROGRESSIONS[w].handstand + ' | ' + WEEKLY_PROGRESSIONS[w].pullups, xp: 100, category: 'workout' },
+            { id: 'l2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Mâncare curată + Hugo Boss Infinite', xp: 50, category: 'routine' },
+            { id: 'l3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Deplasare spre Ciocana/CEITI', xp: 30, category: 'routine' },
+            { id: 'l4', time: '08:00 - 10:50', task: 'Ore CEITI: Grupa R-2611 (Perechea 1 & 2)', detailW: () => 'Cursuri profil rețele / mate / română', xp: 50, category: 'study' },
+            { id: 'l5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups + ' + ' + WEEKLY_PROGRESSIONS[w].pushups, xp: 80, category: 'workout' },
+            { id: 'l6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', detailW: () => 'Studiu tehnic & laboratoare', xp: 50, category: 'study' },
+            { id: 'l7', time: '14:20 - 15:25', task: 'Întoarcere Ciocana & Odihnă Deconectare', detailW: () => 'Deplasare autobuz & relaxare pe pat', xp: 30, category: 'routine' },
+            { id: 'l8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Masă bogată în proteine și carbohidrați', xp: 40, category: 'routine' },
+            { id: 'l9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Școala Nr. 2)', detailW: () => 'Încălzire 20m | Intrări la picioare 40m | Shadowboxing 25m', xp: 120, category: 'workout' },
+            { id: 'l10', time: '18:00 - 18:30', task: 'Tranzit înapoi & Duș rapid', detailW: () => 'Igienă personală', xp: 30, category: 'routine' },
+            { id: 'l11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel Matinal', detailW: () => 'Hanorac negru + bandană, clip calisthenics', xp: 60, category: 'code' },
+            { id: 'l12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) sau Kwork Coding (2 ore Focus)', detailW: () => 'Scriere cod în VS Code / Docker', xp: 100, category: 'code' },
+            { id: 'l13', time: '21:00 - 22:00', task: 'Cina & Pregătire pentru somn', detailW: () => 'Masă lejeră de seară', xp: 40, category: 'routine' },
+            { id: 'l14', time: '22:00 - 05:00', task: 'Somn Profund de Recuperare (7h strictly)', detailW: () => 'Recuperare celulară totală', xp: 80, category: 'routine' }
           ],
           Marti: [
-            { id: 'ma1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Echilibru)', xp: 100, category: 'workout' },
-            { id: 'ma2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
-            { id: 'ma3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
-            { id: 'ma4', time: '08:00 - 10:50', task: 'Ore CEITI: Perechea 1 & 2', xp: 50, category: 'study' },
-            { id: 'ma5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (3x8 Tracțiuni, 3x15 Flotări)', xp: 80, category: 'workout' },
-            { id: 'ma6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', xp: 50, category: 'study' },
-            { id: 'ma7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
-            { id: 'ma8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
-            { id: 'ma9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', xp: 120, category: 'workout' },
-            { id: 'ma10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', xp: 30, category: 'routine' },
-            { id: 'ma11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', xp: 60, category: 'code' },
-            { id: 'ma12', time: '19:00 - 21:00', task: 'Python Coding / Kwork Client Delivery (2 ore)', xp: 100, category: 'code' },
+            { id: 'ma1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics Dinamic & Echilibru)', detailW: (w) => WEEKLY_PROGRESSIONS[w].handstand, xp: 100, category: 'workout' },
+            { id: 'ma2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Rutina matinală', xp: 50, category: 'routine' },
+            { id: 'ma3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Drumul spre colegiu', xp: 30, category: 'routine' },
+            { id: 'ma4', time: '08:00 - 10:50', task: 'Ore CEITI: Perechea 1 & 2', detailW: () => 'Fără prima pereche / studiu', xp: 50, category: 'study' },
+            { id: 'ma5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
+            { id: 'ma6', time: '11:30 - 14:20', task: 'Ore CEITI: Perechea 3 & 4', detailW: () => 'Cursuri tehnice', xp: 50, category: 'study' },
+            { id: 'ma7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', detailW: () => 'Revenire Ciocana', xp: 30, category: 'routine' },
+            { id: 'ma8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', detailW: () => 'Masă proteică', xp: 40, category: 'routine' },
+            { id: 'ma9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork (Sală)', detailW: () => 'Lupte la sol și picioare', xp: 120, category: 'workout' },
+            { id: 'ma10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', detailW: () => 'Duș și haine', xp: 30, category: 'routine' },
+            { id: 'ma11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', detailW: () => 'Reel nou publicat', xp: 60, category: 'code' },
+            { id: 'ma12', time: '19:00 - 21:00', task: 'Python Coding / Kwork Client Delivery (2 ore)', detailW: () => 'Dezvoltare scripturi Python', xp: 100, category: 'code' },
             { id: 'ma13', time: '21:00 - 22:00', task: 'Cină & Deconectare', xp: 40, category: 'routine' },
             { id: 'ma14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', xp: 80, category: 'routine' }
           ],
           Miercuri: [
-            { id: 'mi1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Pike Flow & Core Dinamic)', xp: 100, category: 'workout' },
-            { id: 'mi2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
-            { id: 'mi3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
-            { id: 'mi4', time: '08:00 - 10:50', task: 'Ore CEITI: Limba Română / Rețele', xp: 50, category: 'study' },
-            { id: 'mi5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi (3x8 Tracțiuni, 3x15 Flotări)', xp: 80, category: 'workout' },
-            { id: 'mi6', time: '11:30 - 14:20', task: 'Ore CEITI: Programare & Matematică', xp: 50, category: 'study' },
+            { id: 'mi1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Pike Flow & Core Dinamic)', detailW: (w) => WEEKLY_PROGRESSIONS[w].pushups, xp: 100, category: 'workout' },
+            { id: 'mi2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', detailW: () => 'Micul dejun curat', xp: 50, category: 'routine' },
+            { id: 'mi3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', detailW: () => 'Deplasare', xp: 30, category: 'routine' },
+            { id: 'mi4', time: '08:00 - 10:50', task: 'Ore CEITI: Limba Română / Rețele', detailW: () => 'Cursuri program', xp: 50, category: 'study' },
+            { id: 'mi5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
+            { id: 'mi6', time: '11:30 - 14:20', task: 'Ore CEITI: Programare & Matematică', detailW: () => 'Laboratoare', xp: 50, category: 'study' },
             { id: 'mi7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
             { id: 'mi8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
-            { id: 'mi9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork', xp: 120, category: 'workout' },
+            { id: 'mi9', time: '16:00 - 18:00', task: 'Lupte Libere + Shadowboxing & Footwork', detailW: () => 'Antrenament de seară', xp: 120, category: 'workout' },
             { id: 'mi10', time: '18:00 - 18:30', task: 'Tranzit & Igienă', xp: 30, category: 'routine' },
             { id: 'mi11', time: '18:30 - 19:00', task: 'Editat & Publicat Instagram Reel', xp: 60, category: 'code' },
             { id: 'mi12', time: '19:00 - 21:00', task: 'YouTube (5-Min Python) / Kwork Development', xp: 100, category: 'code' },
@@ -81,11 +75,11 @@
             { id: 'mi14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', xp: 80, category: 'routine' }
           ],
           Joi: [
-            { id: 'j1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Handstand Kick-ups & Tracțiuni)', xp: 100, category: 'workout' },
+            { id: 'j1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Handstand Kick-ups & Tracțiuni)', detailW: (w) => WEEKLY_PROGRESSIONS[w].handstand, xp: 100, category: 'workout' },
             { id: 'j2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
             { id: 'j3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
             { id: 'j4', time: '08:00 - 10:50', task: 'Ore CEITI: Română & Programare Structurată', xp: 50, category: 'study' },
-            { id: 'j5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', xp: 80, category: 'workout' },
+            { id: 'j5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
             { id: 'j6', time: '11:30 - 14:20', task: 'Ore CEITI: Matematică & Istorie', xp: 50, category: 'study' },
             { id: 'j7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
             { id: 'j8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
@@ -97,11 +91,11 @@
             { id: 'j14', time: '22:00 - 05:00', task: 'Somn Profund (7 Ore Fixe)', xp: 80, category: 'routine' }
           ],
           Vineri: [
-            { id: 'v1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics dinamic final de săptămână)', xp: 100, category: 'workout' },
+            { id: 'v1', time: '05:00 - 06:00', task: 'Antrenament Matinal (Calisthenics dinamic final de săptămână)', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups + ' | ' + WEEKLY_PROGRESSIONS[w].pushups, xp: 100, category: 'workout' },
             { id: 'v2', time: '06:00 - 06:40', task: 'Micul Dejun & Pregătire Personală', xp: 50, category: 'routine' },
             { id: 'v3', time: '06:40 - 07:40', task: 'Tranzit Matinal spre CEITI', xp: 30, category: 'routine' },
             { id: 'v4', time: '08:00 - 10:50', task: 'Ore CEITI: Istoria & Matematica', xp: 50, category: 'study' },
-            { id: 'v5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (Ultimul set)', xp: 80, category: 'workout' },
+            { id: 'v5', time: '10:50 - 11:30', task: 'PAUZA MARE — Stadionul Vechi Workout (Ultimul set)', detailW: (w) => WEEKLY_PROGRESSIONS[w].pullups, xp: 80, category: 'workout' },
             { id: 'v6', time: '11:30 - 14:20', task: 'CEITI: Fereastră & Studiu Individual', xp: 50, category: 'study' },
             { id: 'v7', time: '14:20 - 15:25', task: 'Tranzit & Odihnă la Domiciliu', xp: 30, category: 'routine' },
             { id: 'v8', time: '15:25 - 16:00', task: 'Prânzul & Nutriția de Refacere', xp: 40, category: 'routine' },
@@ -113,30 +107,29 @@
             { id: 'v14', time: '22:00 - 05:00', task: 'Somn Profund de Refacere', xp: 80, category: 'routine' }
           ],
           Sambata: [
-            { id: 's1', time: '08:00 - 09:00', task: 'Trezire Naturală & Micul Dejun consistent', xp: 40, category: 'routine' },
-            { id: 's2', time: '09:00 - 10:00', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (40 min)', xp: 100, category: 'workout' },
-            { id: 's3', time: '10:00 - 12:00', task: 'Studiu CEITI / Proiecte Rețele & C++', xp: 80, category: 'study' },
-            { id: 's4', time: '12:00 - 13:00', task: 'Gătit Mese Curate pentru Weekend (Prep)', xp: 60, category: 'routine' },
-            { id: 's5', time: '13:00 - 14:00', task: 'Prânz & Pauză de Relaxare', xp: 40, category: 'routine' },
-            { id: 's6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: Kwork Projects & YouTube Scripting/Edits', xp: 200, category: 'code' },
-            { id: 's7', time: '18:00 - 19:30', task: 'Timp Liber & Socializare (Deconectare totală)', xp: 50, category: 'routine' },
-            { id: 's8', time: '19:30 - 21:00', task: 'Cină & Planificare Săptămânală', xp: 40, category: 'routine' },
-            { id: 's9', time: '21:00 - 07:00', task: 'Odihnă & Somn Profund de Recuperare', xp: 80, category: 'routine' }
+            { id: 's1', time: '08:00 - 09:00', task: 'Trezire Naturală & Micul Dejun consistent', detailW: () => 'Refacere matinală în tihnă', xp: 40, category: 'routine' },
+            { id: 's2', time: '09:00 - 10:00', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (40 min)', detailW: () => 'Runde tehnice de viteză și mobilitate', xp: 100, category: 'workout' },
+            { id: 's3', time: '10:00 - 12:00', task: 'Studiu CEITI / Proiecte Rețele & C++', detailW: () => 'Aprofundare C++ / Linux', xp: 80, category: 'study' },
+            { id: 's4', time: '12:00 - 13:00', task: 'Gătit Mese Curate pentru Weekend (Prep)', detailW: () => 'Meal prep curat', xp: 60, category: 'routine' },
+            { id: 's5', time: '13:00 - 14:00', task: 'Prânz & Pauză de Relaxare', detailW: () => 'Masă principală', xp: 40, category: 'routine' },
+            { id: 's6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: Kwork Projects & YouTube Scripting/Edits', detailW: () => 'Deep work programare & freelancing', xp: 200, category: 'code' },
+            { id: 's7', time: '18:00 - 19:30', task: 'Timp Liber & Socializare (Deconectare totală)', detailW: () => 'Ieșire cu prietenii / familie', xp: 50, category: 'routine' },
+            { id: 's8', time: '19:30 - 21:00', task: 'Cină & Planificare Săptămânală', detailW: () => 'Pregătire mentală', xp: 40, category: 'routine' },
+            { id: 's9', time: '21:00 - 07:00', task: 'Odihnă & Somn Profund de Recuperare', detailW: () => 'Somn lung de weekend', xp: 80, category: 'routine' }
           ],
           Duminica: [
-            { id: 'd1', time: '08:30 - 09:30', task: 'Trezire Naturală & Hidratare / Micul Dejun', xp: 40, category: 'routine' },
-            { id: 'd2', time: '09:30 - 10:15', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (45 min)', xp: 100, category: 'workout' },
-            { id: 'd3', time: '10:30 - 12:00', task: 'Organizari, Pregătire Ghiozdan & Uniformă pentru Luni', xp: 50, category: 'routine' },
-            { id: 'd4', time: '12:00 - 13:00', task: 'Gătit Mese Curate (Meal Prep săptămâna viitoare)', xp: 60, category: 'routine' },
-            { id: 'd5', time: '13:00 - 14:00', task: 'Prânz & Scurtă Plimbare', xp: 40, category: 'routine' },
-            { id: 'd6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: YouTube (5-Min Python) & Kwork Finalizing', xp: 200, category: 'code' },
-            { id: 'd7', time: '18:00 - 19:30', task: 'Deconectare & Socializare cu Familia/Prietenii', xp: 50, category: 'routine' },
-            { id: 'd8', time: '19:30 - 21:00', task: 'Cină Lejeră & Vizualizarea Săptămânii Viitoare', xp: 40, category: 'routine' },
-            { id: 'd9', time: '21:00 - 05:00', task: 'Somn Profund (Stingere totală pentru Luni 05:00)', xp: 80, category: 'routine' }
+            { id: 'd1', time: '08:30 - 09:30', task: 'Trezire Naturală & Hidratare / Micul Dejun', detailW: () => 'Hidratare și mic dejun', xp: 40, category: 'routine' },
+            { id: 'd2', time: '09:30 - 10:15', task: 'Sesiune Weekend: Shadowboxing, Footwork & Mobilitate (45 min)', detailW: () => 'Menținere tonus sportiv', xp: 100, category: 'workout' },
+            { id: 'd3', time: '10:30 - 12:00', task: 'Organizari, Pregătire Ghiozdan & Uniformă pentru Luni', detailW: () => 'Pregătirea săptămânii', xp: 50, category: 'routine' },
+            { id: 'd4', time: '12:00 - 13:00', task: 'Gătit Mese Curate (Meal Prep săptămâna viitoare)', detailW: () => 'Gătit pentru Luni-Vineri', xp: 60, category: 'routine' },
+            { id: 'd5', time: '13:00 - 14:00', task: 'Prânz & Scurtă Plimbare', detailW: () => 'Aer curat', xp: 40, category: 'routine' },
+            { id: 'd6', time: '14:00 - 18:00', task: '4 ORE BLOC MASIV: YouTube (5-Min Python) & Kwork Finalizing', detailW: () => 'Finalizare task-uri s, scripturi', xp: 200, category: 'code' },
+            { id: 'd7', time: '18:00 - 19:30', task: 'Deconectare & Socializare cu Familia/Prietenii', detailW: () => 'Relaxare', xp: 50, category: 'routine' },
+            { id: 'd8', time: '19:30 - 21:00', task: 'Cină Lejeră & Vizualizarea Săptămânii Viitoare', detailW: () => 'Setare mentală pentru Luni 05:00', xp: 40, category: 'routine' },
+            { id: 'd9', time: '21:00 - 05:00', task: 'Somn Profund (Stingere totală pentru Luni 05:00)', detailW: () => 'Pregătire pentru Hell Week', xp: 80, category: 'routine' }
           ]
         };
 
-        // --- LEVELS CONFIGURATION ---
         const RANKS = [
           { level: 1, title: 'Recrut', minXp: 0, color: 'text-gray-400' },
           { level: 2, title: 'Inițiat', minXp: 500, color: 'text-blue-400' },
@@ -150,51 +143,35 @@
           { level: 10, title: 'Invincibil', minXp: 16000, color: 'text-emerald-300 font-extrabold animate-pulse' }
         ];
 
-        // --- BADGES / ACHIEVEMENTS CONFIGURATION ---
         const BADGES = [
-          { id: 'b1', name: 'Membru CEITI Disciplinat', desc: 'Ai completat toate cursurile și sesiunile de marți/joi.', icon: 'Shield', reqType: 'xp', reqVal: 1000 },
-          { id: 'b2', name: 'Handstand Master', desc: 'Menține echilibrul și atinge ținta de handstand.', icon: 'Zap', reqType: 'handstand', reqVal: 30 },
-          { id: 'b3', name: 'Reel Fiend', desc: 'Postează reels constant după antrenamentele de 05:00.', icon: 'Flame', reqType: 'xp', reqVal: 3000 },
-          { id: 'b4', name: 'Kwork Earner', desc: 'Atinge pragul de 200€ din freelancing Python.', icon: 'Trophy', reqType: 'kwork', reqVal: 200 },
-          { id: 'b5', name: '15 Ore Bifate', desc: 'Execeută 15 ore de antrenament și lupte într-o săptămână.', icon: 'Dumbbell', reqType: 'workoutHours', reqVal: 15 },
-          { id: 'b6', name: 'Fiară de Neoprit', desc: 'Atinge Nivelul 8 în Protocolul Luna Iadului.', icon: 'Sparkles', reqType: 'level', reqVal: 8 }
+          { id: 'b1', name: 'Membru CEITI Disciplinat', desc: 'Ai completat toate cursurile și sesiunile.', reqType: 'xp', reqVal: 1000 },
+          { id: 'b2', name: 'Handstand Master', desc: 'Atinge ținta de handstand liber (30s).', reqType: 'handstand', reqVal: 30 },
+          { id: 'b3', name: 'Reel Fiend', desc: 'Postează reels constant după antrenamente.', reqType: 'xp', reqVal: 3000 },
+          { id: 'b4', name: 'Kwork Earner', desc: 'Atinge pragul de 200€ din freelancing Python.', reqType: 'kwork', reqVal: 200 },
+          { id: 'b5', name: '15 Ore Bifate', desc: 'Execută 15 ore de antrenament săptămânal.', reqType: 'workoutHours', reqVal: 15 },
+          { id: 'b6', name: 'Fiară de Neoprit', desc: 'Atinge Nivelul 8 în Protocol.', reqType: 'level', reqVal: 8 }
         ];
 
         function App() {
           const [selectedWeek, setSelectedWeek] = useState(1);
           const [selectedDay, setSelectedDay] = useState('Luni');
           const [activeTab, setActiveTab] = useState('schedule');
-          const [soundEnabled, setSoundEnabled] = useState(true);
 
           const [completedTasks, setCompletedTasks] = useState(() => {
             try {
               const saved = localStorage.getItem('luna_iadului_tasks');
               return saved ? JSON.parse(saved) : {};
-            } catch (e) {
-              return {};
-            }
+            } catch (e) { return {}; }
           });
 
           const [userMetrics, setUserMetrics] = useState(() => {
             try {
               const saved = localStorage.getItem('luna_iadului_metrics');
               return saved ? JSON.parse(saved) : {
-                weight: 80,
-                pullups: 6,
-                pushups: 15,
-                handstandSec: 2,
-                weeklyWorkoutHrs: 15,
-                kworkEarning: 0
+                weight: 80, pullups: 6, pushups: 15, handstandSec: 2, weeklyWorkoutHrs: 15, kworkEarning: 0
               };
             } catch (e) {
-              return {
-                weight: 80,
-                pullups: 6,
-                pushups: 15,
-                handstandSec: 2,
-                weeklyWorkoutHrs: 15,
-                kworkEarning: 0
-              };
+              return { weight: 80, pullups: 6, pushups: 15, handstandSec: 2, weeklyWorkoutHrs: 15, kworkEarning: 0 };
             }
           });
 
@@ -205,41 +182,6 @@
           useEffect(() => {
             localStorage.setItem('luna_iadului_metrics', JSON.stringify(userMetrics));
           }, [userMetrics]);
-
-          const playSound = (type) => {
-            if (!soundEnabled) return;
-            try {
-              const ctx = new (window.AudioContext || window.webkitAudioContext)();
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.connect(gain);
-              gain.connect(ctx.destination);
-
-              if (type === 'check') {
-                osc.frequency.setValueAtTime(440, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.1);
-              } else if (type === 'uncheck') {
-                osc.frequency.setValueAtTime(400, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.1);
-              } else if (type === 'level') {
-                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-                osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.4);
-              }
-            } catch (e) {}
-          };
 
           const totalXp = useMemo(() => {
             let xp = 0;
@@ -256,10 +198,7 @@
           const currentRank = useMemo(() => {
             let current = RANKS[0];
             for (let i = RANKS.length - 1; i >= 0; i--) {
-              if (totalXp >= RANKS[i].minXp) {
-                current = RANKS[i];
-                break;
-              }
+              if (totalXp >= RANKS[i].minXp) { current = RANKS[i]; break; }
             }
             return current;
           }, [totalXp]);
@@ -271,9 +210,7 @@
 
           const xpProgressPercent = useMemo(() => {
             if (!nextRank) return 100;
-            const currentMin = currentRank.minXp;
-            const nextMin = nextRank.minXp;
-            const progress = ((totalXp - currentMin) / (nextMin - currentMin)) * 100;
+            const progress = ((totalXp - currentRank.minXp) / (nextRank.minXp - currentRank.minXp)) * 100;
             return Math.min(Math.max(progress, 0), 100);
           }, [totalXp, currentRank, nextRank]);
 
@@ -282,569 +219,230 @@
             t => completedTasks[`w${selectedWeek}-${selectedDay}-${t.id}`]
           ).length;
           const currentDayPercent = currentDaySchedule.length > 0 
-            ? Math.round((currentDayCompletedCount / currentDaySchedule.length) * 100) 
-            : 0;
+            ? Math.round((currentDayCompletedCount / currentDaySchedule.length) * 100) : 0;
 
-          const streakDays = useMemo(() => {
-            const daysOrder = ['Luni', 'Marti', 'Miercuri', 'Joi', 'Vineri', 'Sambata', 'Duminica'];
-            let streak = 0;
-            for (let w = 1; w <= 4; w++) {
-              for (let day of daysOrder) {
-                const sched = INITIAL_SCHEDULE[day] || [];
-                const done = sched.filter(t => completedTasks[`w${w}-${day}-${t.id}`]).length;
-                if (sched.length > 0 && (done / sched.length) >= 0.6) {
-                  streak++;
-                } else {
-                  if (done === 0) return streak;
-                  streak = 0;
-                }
-              }
-            }
-            return streak;
-          }, [completedTasks]);
-
-          const toggleTask = (taskId, xp) => {
+          const toggleTask = (taskId) => {
             const key = `w${selectedWeek}-${selectedDay}-${taskId}`;
-            const isNowChecked = !completedTasks[key];
-            
-            setCompletedTasks(prev => ({
-              ...prev,
-              [key]: isNowChecked
-            }));
-
-            if (isNowChecked) {
-              playSound('check');
-              const newXp = totalXp + xp;
-              const newRankCandidate = [...RANKS].reverse().find(r => newXp >= r.minXp);
-              if (newRankCandidate && newRankCandidate.level > currentRank.level) {
-                setTimeout(() => playSound('level'), 150);
-              }
-            } else {
-              playSound('uncheck');
-            }
+            setCompletedTasks(prev => ({ ...prev, [key]: !prev[key] }));
           };
 
           const resetCurrentDay = () => {
             const updated = { ...completedTasks };
-            currentDaySchedule.forEach(t => {
-              delete updated[`w${selectedWeek}-${selectedDay}-${t.id}`];
-            });
+            currentDaySchedule.forEach(t => { delete updated[`w${selectedWeek}-${selectedDay}-${t.id}`]; });
             setCompletedTasks(updated);
           };
 
           return (
-            <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-emerald-500 selection:text-black">
+            <div className="max-w-4xl mx-auto p-4 sm:p-6 pb-24">
               
-              <header className="border-b border-neutral-800 bg-neutral-900/80 backdrop-blur sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 shadow-inner">
-                      <Flame className="w-6 h-6 animate-pulse" />
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h1 className="text-xl font-black tracking-tight text-white uppercase">Luna Iadului</h1>
-                        <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-                          PROTOCOL 24/7
-                        </span>
-                      </div>
-                      <p className="text-xs text-neutral-400">CEITI • Lupte Libere • Calisthenics • Python & Kwork</p>
-                    </div>
+              {/* HEADER BAR */}
+              <header className="border-b border-neutral-800 pb-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400">
+                    🔥
                   </div>
-
-                  <div className="flex items-center space-x-4 bg-neutral-900 border border-neutral-800 rounded-2xl p-2 px-4 shadow-lg">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="w-5 h-5 text-amber-400" />
-                      <div>
-                        <div className="text-xs text-neutral-400 font-medium">Nivel {currentRank.level}</div>
-                        <div className={`text-sm font-bold ${currentRank.color}`}>{currentRank.title}</div>
-                      </div>
-                    </div>
-
-                    <div className="h-8 w-[1px] bg-neutral-800" />
-
-                    <div className="flex items-center space-x-1.5">
-                      <Zap className="w-5 h-5 text-amber-400 fill-amber-400/20" />
-                      <div>
-                        <div className="text-xs text-neutral-400 font-medium">Streak</div>
-                        <div className="text-sm font-bold text-amber-400">{streakDays} Zile</div>
-                      </div>
-                    </div>
-
-                    <div className="h-8 w-[1px] bg-neutral-800" />
-
-                    <button 
-                      onClick={() => setSoundEnabled(!soundEnabled)}
-                      className="p-1.5 text-neutral-400 hover:text-white transition rounded-lg hover:bg-neutral-800"
-                      title={soundEnabled ? "Sunet activat" : "Sunet dezactivat"}
-                    >
-                      {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
-                    </button>
+                  <div>
+                    <h1 className="text-2xl font-black text-white uppercase tracking-wider">Luna Iadului</h1>
+                    <p className="text-xs text-neutral-400">Protocol 24/7 • CEITI • Calisthenics • Python & Kwork</p>
                   </div>
-
                 </div>
 
-                <div className="w-full bg-neutral-900 h-2 relative overflow-hidden">
-                  <div 
-                    className="bg-gradient-to-r from-emerald-500 via-cyan-400 to-amber-400 h-full transition-all duration-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"
-                    style={{ width: `${xpProgressPercent}%` }}
-                  />
+                <div className="bg-neutral-900 border border-neutral-800 px-4 py-2.5 rounded-2xl flex items-center space-x-4 shadow-lg">
+                  <div>
+                    <div className="text-[10px] text-neutral-400 font-medium">Nivel {currentRank.level}</div>
+                    <div className={`text-sm font-bold ${currentRank.color}`}>{currentRank.title}</div>
+                  </div>
+                  <div className="h-6 w-[1px] bg-neutral-800" />
+                  <div>
+                    <div className="text-[10px] text-neutral-400 font-medium">XP Total</div>
+                    <div className="text-sm font-bold text-amber-400">{totalXp} XP</div>
+                  </div>
                 </div>
               </header>
 
-              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+              {/* XP BAR */}
+              <div className="mb-6 bg-neutral-900 p-3 rounded-2xl border border-neutral-800">
+                <div className="flex justify-between text-xs mb-1.5 font-bold">
+                  <span className="text-neutral-400">Progres Rang Curent</span>
+                  <span className="text-emerald-400">{Math.round(xpProgressPercent)}%</span>
+                </div>
+                <div className="w-full bg-neutral-950 h-2.5 rounded-full overflow-hidden border border-neutral-800">
+                  <div className="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full transition-all duration-300" style={{ width: `${xpProgressPercent}%` }} />
+                </div>
+              </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-4 bg-neutral-900/60 p-1.5 rounded-2xl border border-neutral-800">
-                  <div className="flex items-center space-x-1 w-full sm:w-auto">
-                    <button
-                      onClick={() => setActiveTab('schedule')}
-                      className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-sm transition ${
-                        activeTab === 'schedule' 
-                          ? 'bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-500/20' 
-                          : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                      }`}
-                    >
-                      <Calendar className="w-4 h-4" />
-                      <span>Orar Zilnic</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('progress')}
-                      className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-sm transition ${
-                        activeTab === 'progress' 
-                          ? 'bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-500/20' 
-                          : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                      }`}
-                    >
-                      <BarChart3 className="w-4 h-4" />
-                      <span>Raport Evoluție</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('rpg')}
-                      className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-sm transition ${
-                        activeTab === 'rpg' 
-                          ? 'bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-500/20' 
-                          : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                      }`}
-                    >
-                      <Trophy className="w-4 h-4" />
-                      <span>Realizări & RPG</span>
-                    </button>
+              {/* NAVIGATION TABS */}
+              <div className="flex gap-2 mb-6 border-b border-neutral-800 pb-3 overflow-x-auto">
+                <button onClick={() => setActiveTab('schedule')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${activeTab === 'schedule' ? 'bg-emerald-500 text-neutral-950 shadow-lg shadow-emerald-500/20' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}>📅 Orar Zilnic & Detalii</button>
+                <button onClick={() => setActiveTab('progress')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${activeTab === 'progress' ? 'bg-emerald-500 text-neutral-950 shadow-lg shadow-emerald-500/20' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}>📊 Raport Evoluție</button>
+                <button onClick={() => setActiveTab('rpg')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${activeTab === 'rpg' ? 'bg-emerald-500 text-neutral-950 shadow-lg shadow-emerald-500/20' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}>🏆 Insigne & RPG</button>
+              </div>
+
+              {/* TAB 1: SCHEDULE */}
+              {activeTab === 'schedule' && (
+                <div className="space-y-4">
+                  {/* WEEK SELECTOR */}
+                  <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                      <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Alege Săptămâna (Progresie Serii/Reps):</span>
+                      <div className="flex gap-1.5">
+                        {[1, 2, 3, 4].map(w => (
+                          <button key={w} onClick={() => setSelectedWeek(w)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${selectedWeek === w ? 'bg-emerald-500 text-neutral-950' : 'bg-neutral-950 text-neutral-400 border border-neutral-800'}`}>Săpt. {w}</button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* TARGETS FOR SELECTED WEEK */}
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                      <div className="bg-neutral-950 p-2 rounded-xl border border-neutral-800">
+                        <span className="block text-[10px] text-neutral-500">Tracțiuni S{selectedWeek}</span>
+                        <span className="font-bold text-emerald-400">{WEEKLY_PROGRESSIONS[selectedWeek].pullups}</span>
+                      </div>
+                      <div className="bg-neutral-950 p-2 rounded-xl border border-neutral-800">
+                        <span className="block text-[10px] text-neutral-500">Flotări S{selectedWeek}</span>
+                        <span className="font-bold text-cyan-400">{WEEKLY_PROGRESSIONS[selectedWeek].pushups}</span>
+                      </div>
+                      <div className="bg-neutral-950 p-2 rounded-xl border border-neutral-800">
+                        <span className="block text-[10px] text-neutral-500">Handstand S{selectedWeek}</span>
+                        <span className="font-bold text-amber-400">{WEEKLY_PROGRESSIONS[selectedWeek].handstand}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 px-4 py-1.5 bg-neutral-950 border border-neutral-800 rounded-xl">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs text-neutral-400">XP Total:</span>
-                    <span className="text-sm font-black text-amber-400">{totalXp.toLocaleString()} XP</span>
+                  {/* DAY SELECTOR */}
+                  <div className="grid grid-cols-7 gap-1">
+                    {['Luni', 'Marti', 'Miercuri', 'Joi', 'Vineri', 'Sambata', 'Duminica'].map(day => (
+                      <button key={day} onClick={() => setSelectedDay(day)} className={`py-2.5 text-center rounded-xl text-xs font-bold transition ${selectedDay === day ? 'bg-emerald-500 text-neutral-950 shadow-md' : 'bg-neutral-900 text-neutral-400 border border-neutral-800 hover:bg-neutral-800'}`}>{day.slice(0, 3)}</button>
+                    ))}
+                  </div>
+
+                  {/* DAY HEADER & RESET */}
+                  <div className="flex justify-between items-center bg-neutral-900 p-4 rounded-2xl border border-neutral-800">
+                    <div>
+                      <h2 className="font-bold text-white text-base">Program {selectedDay} (Săptămâna {selectedWeek})</h2>
+                      <p className="text-xs text-neutral-400">Progres zi: <span className="text-emerald-400 font-bold">{currentDayPercent}%</span></p>
+                    </div>
+                    <button onClick={resetCurrentDay} className="text-xs text-neutral-500 hover:text-rose-400 bg-neutral-950 px-3 py-1.5 rounded-xl border border-neutral-800 transition">Resetează ziua</button>
+                  </div>
+
+                  {/* TASKS LIST */}
+                  <div className="space-y-2.5">
+                    {currentDaySchedule.map(item => {
+                      const isChecked = !!completedTasks[`w${selectedWeek}-${selectedDay}-${item.id}`];
+                      const detailText = typeof item.detailW === 'function' ? item.detailW(selectedWeek) : item.detailW;
+
+                      return (
+                        <div key={item.id} onClick={() => toggleTask(item.id)} className={`p-4 rounded-2xl border transition cursor-pointer flex items-start justify-between gap-4 ${isChecked ? 'bg-emerald-950/20 border-emerald-500/40 text-neutral-400' : 'bg-neutral-900 border-neutral-800 text-neutral-100 hover:border-neutral-700'}`}>
+                          <div className="flex items-start space-x-3">
+                            <div className={`mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center flex-shrink-0 transition ${isChecked ? 'bg-emerald-500 border-emerald-400 text-neutral-950 font-bold' : 'border-neutral-700 bg-neutral-950'}`}>
+                              {isChecked ? '✓' : ''}
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-mono text-emerald-400 font-bold">{item.time}</span>
+                              <div className={`text-sm font-semibold mt-0.5 ${isChecked ? 'line-through text-neutral-500' : 'text-white'}`}>{item.task}</div>
+                              {detailText && <div className="text-xs text-neutral-400 mt-1 font-mono bg-neutral-950/60 p-2 rounded-xl border border-neutral-800/80">⚙️ {detailText}</div>}
+                            </div>
+                          </div>
+                          <span className={`text-xs px-2.5 py-1 rounded-xl font-bold flex-shrink-0 ${isChecked ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-neutral-950 text-amber-400 border border-neutral-800'}`}>
+                            +{item.xp} XP
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
+              )}
 
-                {activeTab === 'schedule' && (
-                  <div className="space-y-6">
-
-                    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-4">
-                      
-                      <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-                        <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Selectează Săptămâna:</span>
-                        <div className="flex space-x-2">
-                          {[1, 2, 3, 4].map(w => (
-                            <button
-                              key={w}
-                              onClick={() => setSelectedWeek(w)}
-                              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition border ${
-                                selectedWeek === w
-                                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                                  : 'bg-neutral-950 text-neutral-400 border-neutral-800 hover:border-neutral-700'
-                              }`}
-                            >
-                              Săptămâna {w}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-                        {['Luni', 'Marti', 'Miercuri', 'Joi', 'Vineri', 'Sambata', 'Duminica'].map(day => {
-                          const daySched = INITIAL_SCHEDULE[day] || [];
-                          const doneCount = daySched.filter(t => completedTasks[`w${selectedWeek}-${day}-${t.id}`]).length;
-                          const isComplete = daySched.length > 0 && doneCount === daySched.length;
-
-                          return (
-                            <button
-                              key={day}
-                              onClick={() => setSelectedDay(day)}
-                              className={`py-2 px-1 rounded-xl text-center transition flex flex-col items-center justify-between border ${
-                                selectedDay === day
-                                  ? 'bg-emerald-500 text-neutral-950 font-black border-emerald-400 shadow-lg shadow-emerald-500/10'
-                                  : isComplete
-                                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60'
-                                    : 'bg-neutral-950 text-neutral-400 border-neutral-800 hover:bg-neutral-800/50'
-                              }`}
-                            >
-                              <span className="text-xs font-bold">{day.slice(0, 3)}</span>
-                              <span className="text-[10px] mt-1 opacity-80">
-                                {doneCount}/{daySched.length}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                    </div>
-
-                    <div className="flex items-center justify-between bg-neutral-900/80 border border-neutral-800 p-4 rounded-2xl">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-neutral-800 rounded-xl text-emerald-400">
-                          <Clock className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h2 className="text-lg font-bold text-white">Program {selectedDay} (Săptămâna {selectedWeek})</h2>
-                          <p className="text-xs text-neutral-400">Bifează fiecare oră completată pentru a primi puncte XP.</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right hidden sm:block">
-                          <div className="text-xs text-neutral-400 font-medium">Progres Zi</div>
-                          <div className="text-sm font-black text-emerald-400">{currentDayPercent}%</div>
-                        </div>
-
-                        <button
-                          onClick={resetCurrentDay}
-                          className="p-2 text-neutral-500 hover:text-rose-400 hover:bg-neutral-800 rounded-xl transition"
-                          title="Resetează bifările pentru această zi"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2.5">
-                      {currentDaySchedule.map((item) => {
-                        const isChecked = !!completedTasks[`w${selectedWeek}-${selectedDay}-${item.id}`];
-
-                        let catBadge = 'bg-neutral-800 text-neutral-400';
-                        if (item.category === 'workout') {
-                          catBadge = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-                        } else if (item.category === 'code') {
-                          catBadge = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
-                        } else if (item.category === 'study') {
-                          catBadge = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-                        }
-
-                        return (
-                          <div
-                            key={item.id}
-                            onClick={() => toggleTask(item.id, item.xp)}
-                            className={`group relative flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition duration-200 cursor-pointer ${
-                              isChecked
-                                ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm'
-                                : 'bg-neutral-900 border-neutral-800/80 hover:border-neutral-700 hover:bg-neutral-850'
-                            }`}
-                          >
-                            <div className="flex items-center space-x-4">
-                              <button 
-                                className={`flex-shrink-0 w-6 h-6 rounded-lg border flex items-center justify-center transition ${
-                                  isChecked 
-                                    ? 'bg-emerald-500 border-emerald-400 text-neutral-950' 
-                                    : 'border-neutral-700 bg-neutral-950 group-hover:border-neutral-500'
-                                }`}
-                              >
-                                {isChecked ? <Check className="w-4 h-4 stroke-[3]" /> : null}
-                              </button>
-
-                              <div>
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-xs font-mono text-neutral-400 font-semibold">{item.time}</span>
-                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${catBadge} uppercase font-bold tracking-wider`}>
-                                    {item.category}
-                                  </span>
-                                </div>
-                                <p className={`text-sm sm:text-base font-semibold mt-0.5 transition ${
-                                  isChecked ? 'text-neutral-400 line-through' : 'text-neutral-100'
-                                }`}>
-                                  {item.task}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-bold border ${
-                              isChecked
-                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                                : 'bg-neutral-950 text-amber-400 border-neutral-800'
-                            }`}>
-                              <Sparkles className="w-3 h-3" />
-                              <span>+{item.xp} XP</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
+              {/* TAB 2: PROGRESS */}
+              {activeTab === 'progress' && (
+                <div className="space-y-4">
+                  <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-2xl">
+                    <h2 className="text-lg font-bold text-white mb-1">Raport Evoluție & Obiective</h2>
+                    <p className="text-xs text-neutral-400">Introdu valorile curente pentru a urmări transformarea spre 78kg și 12 tracțiuni.</p>
                   </div>
-                )}
 
-                {activeTab === 'progress' && (
-                  <div className="space-y-6">
-
-                    <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div>
-                        <h2 className="text-xl font-black text-white">Raport de Evoluție — Obiective 4 Săptămâni</h2>
-                        <p className="text-xs text-neutral-400">Actualizează-ți valorile curente pentru a-ți urmări progresul în timp real.</p>
-                      </div>
-                      <div className="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-emerald-400 text-xs font-bold">
-                        <TrendingUp className="w-4 h-4" />
-                        <span>Protocol Activ Luna Iadului</span>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-2">
+                      <div className="flex justify-between text-xs font-bold"><span className="text-neutral-400 uppercase">Greutate (Target: 78 kg)</span><span className="text-rose-400">80kg → 78kg</span></div>
+                      <div className="text-3xl font-black">{userMetrics.weight} <span className="text-sm font-normal text-neutral-400">kg</span></div>
+                      <input type="number" step="0.1" value={userMetrics.weight} onChange={e => setUserMetrics({...userMetrics, weight: parseFloat(e.target.value) || 0})} className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      
-                      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-neutral-400 uppercase">Greutate Corporală</span>
-                          <span className="text-xs font-bold text-rose-400">Target: 78 kg</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <div className="text-3xl font-black text-white">{userMetrics.weight} <span className="text-sm font-normal text-neutral-400">kg</span></div>
-                          <div className="text-xs text-neutral-500">Pornire: 80 kg</div>
-                        </div>
-                        <div className="w-full bg-neutral-950 rounded-full h-2 overflow-hidden border border-neutral-800">
-                          <div 
-                            className="bg-rose-500 h-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, Math.max(0, ((80 - userMetrics.weight) / 2) * 100))}%` }} 
-                          />
-                        </div>
-                        <input 
-                          type="number"
-                          step="0.1"
-                          value={userMetrics.weight}
-                          onChange={(e) => setUserMetrics({...userMetrics, weight: parseFloat(e.target.value) || 0})}
-                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500"
-                          placeholder="Modifică valoarea"
-                        />
-                      </div>
-
-                      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-neutral-400 uppercase">Tracțiuni Max Reps</span>
-                          <span className="text-xs font-bold text-emerald-400">Target: 12 reps</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <div className="text-3xl font-black text-white">{userMetrics.pullups} <span className="text-sm font-normal text-neutral-400">reps</span></div>
-                          <div className="text-xs text-neutral-500">Pornire: 6 reps</div>
-                        </div>
-                        <div className="w-full bg-neutral-950 rounded-full h-2 overflow-hidden border border-neutral-800">
-                          <div 
-                            className="bg-emerald-500 h-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, (userMetrics.pullups / 12) * 100)}%` }} 
-                          />
-                        </div>
-                        <input 
-                          type="number"
-                          value={userMetrics.pullups}
-                          onChange={(e) => setUserMetrics({...userMetrics, pullups: parseInt(e.target.value) || 0})}
-                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500"
-                          placeholder="Modifică valoarea"
-                        />
-                      </div>
-
-                      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-neutral-400 uppercase">Flotări Max Reps</span>
-                          <span className="text-xs font-bold text-cyan-400">Target: 30 reps</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <div className="text-3xl font-black text-white">{userMetrics.pushups} <span className="text-sm font-normal text-neutral-400">reps</span></div>
-                          <div className="text-xs text-neutral-500">Pornire: 15 reps</div>
-                        </div>
-                        <div className="w-full bg-neutral-950 rounded-full h-2 overflow-hidden border border-neutral-800">
-                          <div 
-                            className="bg-cyan-400 h-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, (userMetrics.pushups / 30) * 100)}%` }} 
-                          />
-                        </div>
-                        <input 
-                          type="number"
-                          value={userMetrics.pushups}
-                          onChange={(e) => setUserMetrics({...userMetrics, pushups: parseInt(e.target.value) || 0})}
-                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500"
-                          placeholder="Modifică valoarea"
-                        />
-                      </div>
-
-                      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-neutral-400 uppercase">Handstand Hold Liber</span>
-                          <span className="text-xs font-bold text-amber-400">Target: 30 sec</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <div className="text-3xl font-black text-white">{userMetrics.handstandSec} <span className="text-sm font-normal text-neutral-400">sec</span></div>
-                          <div className="text-xs text-neutral-500">Pornire: Wall reps</div>
-                        </div>
-                        <div className="w-full bg-neutral-950 rounded-full h-2 overflow-hidden border border-neutral-800">
-                          <div 
-                            className="bg-amber-400 h-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, (userMetrics.handstandSec / 30) * 100)}%` }} 
-                          />
-                        </div>
-                        <input 
-                          type="number"
-                          value={userMetrics.handstandSec}
-                          onChange={(e) => setUserMetrics({...userMetrics, handstandSec: parseInt(e.target.value) || 0})}
-                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500"
-                          placeholder="Modifică secunde"
-                        />
-                      </div>
-
-                      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-neutral-400 uppercase">Ore Antrenament / Săpt.</span>
-                          <span className="text-xs font-bold text-purple-400">Target: 15 ore</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <div className="text-3xl font-black text-white">{userMetrics.weeklyWorkoutHrs} <span className="text-sm font-normal text-neutral-400">ore</span></div>
-                          <div className="text-xs text-neutral-500">Optimal: 15h</div>
-                        </div>
-                        <div className="w-full bg-neutral-950 rounded-full h-2 overflow-hidden border border-neutral-800">
-                          <div 
-                            className="bg-purple-400 h-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, (userMetrics.weeklyWorkoutHrs / 15) * 100)}%` }} 
-                          />
-                        </div>
-                        <input 
-                          type="number"
-                          value={userMetrics.weeklyWorkoutHrs}
-                          onChange={(e) => setUserMetrics({...userMetrics, weeklyWorkoutHrs: parseInt(e.target.value) || 0})}
-                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500"
-                          placeholder="Modifică ore"
-                        />
-                      </div>
-
-                      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-neutral-400 uppercase">Venit Kwork Python</span>
-                          <span className="text-xs font-bold text-emerald-400">Target: 200 €</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <div className="text-3xl font-black text-white">{userMetrics.kworkEarning} <span className="text-sm font-normal text-neutral-400">€</span></div>
-                          <div className="text-xs text-neutral-500">Freelancing</div>
-                        </div>
-                        <div className="w-full bg-neutral-950 rounded-full h-2 overflow-hidden border border-neutral-800">
-                          <div 
-                            className="bg-emerald-400 h-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, (userMetrics.kworkEarning / 200) * 100)}%` }} 
-                          />
-                        </div>
-                        <input 
-                          type="number"
-                          value={userMetrics.kworkEarning}
-                          onChange={(e) => setUserMetrics({...userMetrics, kworkEarning: parseInt(e.target.value) || 0})}
-                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500"
-                          placeholder="Modifică venit (€)"
-                        />
-                      </div>
-
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-2">
+                      <div className="flex justify-between text-xs font-bold"><span className="text-neutral-400 uppercase">Tracțiuni Max (Target: 12)</span><span className="text-emerald-400">6 → 12 reps</span></div>
+                      <div className="text-3xl font-black">{userMetrics.pullups} <span className="text-sm font-normal text-neutral-400">reps</span></div>
+                      <input type="number" value={userMetrics.pullups} onChange={e => setUserMetrics({...userMetrics, pullups: parseInt(e.target.value) || 0})} className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
                     </div>
 
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-2">
+                      <div className="flex justify-between text-xs font-bold"><span className="text-neutral-400 uppercase">Flotări Max (Target: 30)</span><span className="text-cyan-400">15 → 30 reps</span></div>
+                      <div className="text-3xl font-black">{userMetrics.pushups} <span className="text-sm font-normal text-neutral-400">reps</span></div>
+                      <input type="number" value={userMetrics.pushups} onChange={e => setUserMetrics({...userMetrics, pushups: parseInt(e.target.value) || 0})} className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-2">
+                      <div className="flex justify-between text-xs font-bold"><span className="text-neutral-400 uppercase">Handstand Hold (Target: 30s)</span><span className="text-amber-400">Liber 30s</span></div>
+                      <div className="text-3xl font-black">{userMetrics.handstandSec} <span className="text-sm font-normal text-neutral-400">sec</span></div>
+                      <input type="number" value={userMetrics.handstandSec} onChange={e => setUserMetrics({...userMetrics, handstandSec: parseInt(e.target.value) || 0})} className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-2">
+                      <div className="flex justify-between text-xs font-bold"><span className="text-neutral-400 uppercase">Venit Kwork (Target: 200 €)</span><span className="text-emerald-400">Freelancing Python</span></div>
+                      <div className="text-3xl font-black">{userMetrics.kworkEarning} <span className="text-sm font-normal text-neutral-400">€</span></div>
+                      <input type="number" value={userMetrics.kworkEarning} onChange={e => setUserMetrics({...userMetrics, kworkEarning: parseInt(e.target.value) || 0})} className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {activeTab === 'rpg' && (
-                  <div className="space-y-6">
-
-                    <div className="bg-gradient-to-r from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 p-6 rounded-3xl relative overflow-hidden shadow-2xl">
-                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-                        
-                        <div className="space-y-2">
-                          <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Sistem de Rang RPG</span>
-                          <h2 className={`text-4xl font-black tracking-tight ${currentRank.color}`}>
-                            {currentRank.title} (Nivel {currentRank.level})
-                          </h2>
-                          <p className="text-xs text-neutral-400 max-w-lg">
-                            Câștigă XP bifând orele de antrenament, prezența la CEITI și sesiunile de coding Python/Kwork.
-                          </p>
-                        </div>
-
-                        <div className="bg-neutral-950/80 border border-neutral-800 p-4 rounded-2xl flex items-center space-x-6">
-                          <div className="text-center">
-                            <div className="text-xs text-neutral-400 font-medium">XP Total</div>
-                            <div className="text-2xl font-black text-amber-400">{totalXp}</div>
-                          </div>
-                          <div className="h-8 w-[1px] bg-neutral-800" />
-                          <div className="text-center">
-                            <div className="text-xs text-neutral-400 font-medium">Următorul Rang</div>
-                            <div className="text-sm font-bold text-neutral-200">{nextRank ? nextRank.title : 'MAX'}</div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-
+              {/* TAB 3: RPG & BADGES */}
+              {activeTab === 'rpg' && (
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-neutral-900 to-neutral-950 border border-neutral-800 p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
-                      <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
-                        <Award className="w-5 h-5 text-amber-400" />
-                        <span>Insigne & Realizări</span>
-                      </h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {BADGES.map(b => {
-                          let unlocked = false;
-                          if (b.reqType === 'xp') unlocked = totalXp >= b.reqVal;
-                          if (b.reqType === 'handstand') unlocked = userMetrics.handstandSec >= b.reqVal;
-                          if (b.reqType === 'kwork') unlocked = userMetrics.kworkEarning >= b.reqVal;
-                          if (b.reqType === 'workoutHours') unlocked = userMetrics.weeklyWorkoutHrs >= b.reqVal;
-                          if (b.reqType === 'level') unlocked = currentRank.level >= b.reqVal;
-
-                          return (
-                            <div
-                              key={b.id}
-                              className={`p-4 rounded-2xl border transition flex items-start space-x-4 ${
-                                unlocked
-                                  ? 'bg-neutral-900 border-amber-500/30 text-neutral-100 shadow-md shadow-amber-500/5'
-                                  : 'bg-neutral-950/60 border-neutral-800/60 text-neutral-500 opacity-60'
-                              }`}
-                            >
-                              <div className={`p-3 rounded-xl border ${
-                                unlocked 
-                                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' 
-                                  : 'bg-neutral-900 border-neutral-800 text-neutral-600'
-                              }`}>
-                                <Trophy className="w-6 h-6" />
-                              </div>
-
-                              <div className="space-y-1">
-                                <div className="flex items-center space-x-2">
-                                  <h4 className="text-sm font-bold text-white">{b.name}</h4>
-                                  {unlocked && (
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                                      DEBLOCAT
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-xs text-neutral-400">{b.desc}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Sistem Rang RPG</span>
+                      <h2 className={`text-3xl font-black ${currentRank.color}`}>{currentRank.title} (Nivel {currentRank.level})</h2>
+                      <p className="text-xs text-neutral-400 mt-1">Acumulează XP prin bifarea activităților zilnice.</p>
                     </div>
-
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-center">
+                      <div className="text-[10px] text-neutral-400">XP Curent</div>
+                      <div className="text-xl font-black text-amber-400">{totalXp} XP</div>
+                    </div>
                   </div>
-                )}
 
-              </main>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {BADGES.map(b => {
+                      let unlocked = false;
+                      if (b.reqType === 'xp') unlocked = totalXp >= b.reqVal;
+                      if (b.reqType === 'handstand') unlocked = userMetrics.handstandSec >= b.reqVal;
+                      if (b.reqType === 'kwork') unlocked = userMetrics.kworkEarning >= b.reqVal;
+                      if (b.reqType === 'workoutHours') unlocked = userMetrics.weeklyWorkoutHrs >= b.reqVal;
+                      if (b.reqType === 'level') unlocked = currentRank.level >= b.reqVal;
 
-              <footer className="border-t border-neutral-800 mt-12 py-6 bg-neutral-950 text-center text-xs text-neutral-500">
-                <p>Luna Iadului Protocol • 4 Săptămâni de Disciplină Absolută • Chișinău 2026</p>
-              </footer>
+                      return (
+                        <div key={b.id} className={`p-4 rounded-2xl border transition flex items-start space-x-3 ${unlocked ? 'bg-neutral-900 border-amber-500/30 text-white' : 'bg-neutral-950/60 border-neutral-900 text-neutral-500 opacity-60'}`}>
+                          <div className={`p-3 rounded-xl border ${unlocked ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-neutral-900 border-neutral-800 text-neutral-600'}`}>
+                            🏆
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <h4 className="text-sm font-bold">{b.name}</h4>
+                              {unlocked && <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">DEBLOCAT</span>}
+                            </div>
+                            <p className="text-xs text-neutral-400 mt-0.5">{b.desc}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
             </div>
           );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
